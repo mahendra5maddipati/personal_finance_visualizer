@@ -1,28 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-interface Transaction {
-    id: string;
-    date: string;
-    description: string;
-    amount: number;
-}
+const TransactionList: React.FC = () => {
+    const [transactions, setTransactions] = useState([]);
 
-interface TransactionListProps {
-    transactions: Transaction[];
-    onEdit: (id: string) => void;
-    onDelete: (id: string) => void;
-}
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            try {
+                const response = await fetch('/api/transactions');
+                const data = await response.json();
+                setTransactions(data);
+            } catch (error) {
+                console.error('Failed to fetch transactions:', error);
+            }
+        };
 
-const TransactionList: React.FC<TransactionListProps> = ({ transactions, onEdit, onDelete }) => {
+        fetchTransactions();
+    }, []);
+
     return (
         <div>
             <h2>Transaction List</h2>
             <ul>
-                {transactions.map(transaction => (
-                    <li key={transaction.id}>
-                        <span>{transaction.date} - {transaction.description}: ${transaction.amount}</span>
-                        <button onClick={() => onEdit(transaction.id)}>Edit</button>
-                        <button onClick={() => onDelete(transaction.id)}>Delete</button>
+                {transactions.map((transaction) => (
+                    <li key={transaction._id}>
+                        {transaction.date} - {transaction.description}: ${transaction.amount} ({transaction.category})
                     </li>
                 ))}
             </ul>
